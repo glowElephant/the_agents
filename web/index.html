@@ -3,32 +3,35 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Agents - AI 협업 시스템</title>
+  <title>The Agents v2.0 - 멀티 에이전트 협업</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
     <header>
-      <h1>The Agents</h1>
-      <p class="subtitle">AI 에이전트 협업 시스템</p>
+      <h1>The Agents <span class="version">v2.0</span></h1>
+      <p class="subtitle">멀티 에이전트 협업 시스템</p>
     </header>
 
-    <!-- 입력 섹션 -->
-    <section id="input-section" class="section">
-      <h2>요구사항 입력</h2>
-      <textarea
-        id="requirement"
-        placeholder="만들고 싶은 것을 상세하게 설명해주세요...
+    <!-- 설정 섹션 -->
+    <section id="config-section" class="section">
+      <h2>프로젝트 설정</h2>
 
-예시:
-- 간단한 Todo 앱 (추가, 삭제, 완료 체크)
-- 로컬 스토리지에 데이터 저장
-- 반응형 디자인"
-      ></textarea>
+      <div class="config-group">
+        <label>요구사항:</label>
+        <textarea id="requirement" placeholder="만들고 싶은 것을 상세하게 설명해주세요..."></textarea>
+      </div>
 
-      <div class="path-input">
-        <label for="work-path">작업 경로:</label>
+      <div class="config-group">
+        <label>작업 경로:</label>
         <input type="text" id="work-path" placeholder="C:/projects/my-app (비워두면 기본 workspace 사용)">
+      </div>
+
+      <div class="config-group">
+        <label>팀 구성:</label>
+        <div class="team-config" id="team-config">
+          <!-- 역할별 인원 설정 (JS에서 동적 생성) -->
+        </div>
       </div>
 
       <div class="button-group">
@@ -37,37 +40,27 @@
       </div>
     </section>
 
-    <!-- 에이전트 상태 -->
-    <section id="status-section" class="section hidden">
-      <h2>에이전트 상태</h2>
-      <div class="agent-status-container">
-        <div class="agent-card" id="planner-card">
-          <div class="agent-header">
-            <span class="agent-icon">📋</span>
-            <span class="agent-name">기획 에이전트</span>
-          </div>
-          <div class="agent-state" id="planner-state">대기 중</div>
-          <div class="agent-cli" id="planner-cli"></div>
-        </div>
-
-        <div class="agent-arrow">⇄</div>
-
-        <div class="agent-card" id="developer-card">
-          <div class="agent-header">
-            <span class="agent-icon">💻</span>
-            <span class="agent-name">개발 에이전트</span>
-          </div>
-          <div class="agent-state" id="developer-state">대기 중</div>
-          <div class="agent-cli" id="developer-cli"></div>
-        </div>
+    <!-- 진행 상황 -->
+    <section id="progress-section" class="section hidden">
+      <h2>진행 상황</h2>
+      <div class="phase-progress" id="phase-progress">
+        <!-- 단계별 진행 표시 (JS에서 동적 생성) -->
       </div>
     </section>
 
-    <!-- 질문 섹션 -->
+    <!-- 대화 섹션 -->
+    <section id="conversation-section" class="section hidden">
+      <h2>에이전트 대화</h2>
+      <div class="conversation-container" id="conversation-container">
+        <!-- 에이전트 대화 표시 -->
+      </div>
+    </section>
+
+    <!-- 사용자 질문 섹션 -->
     <section id="question-section" class="section hidden">
-      <h2>에이전트 질문</h2>
+      <h2>질문</h2>
       <div class="question-box">
-        <div class="question-from" id="question-from">기획 에이전트</div>
+        <div class="question-from" id="question-from"></div>
         <div class="question-text" id="question-text"></div>
       </div>
       <div class="answer-input">
@@ -76,42 +69,45 @@
       </div>
     </section>
 
-    <!-- 기획 문서 -->
-    <section id="spec-section" class="section hidden">
-      <h2>기획 문서</h2>
-      <div class="spec-content" id="spec-content">
-        <p class="placeholder">기획 문서가 여기에 표시됩니다...</p>
+    <!-- 사용자 개입 섹션 (무한루프 시) -->
+    <section id="intervention-section" class="section hidden">
+      <h2>⚠️ 문제 발생</h2>
+      <div class="intervention-box">
+        <p id="intervention-reason"></p>
+        <p class="retry-count" id="retry-count"></p>
+      </div>
+      <div class="intervention-actions">
+        <textarea id="intervention-message" placeholder="추가 지시사항 (선택)"></textarea>
+        <div class="button-group">
+          <button class="primary-btn" onclick="sendIntervention('continue')">계속 진행</button>
+          <button class="secondary-btn" onclick="sendIntervention('retry')">다시 시도</button>
+          <button class="secondary-btn" onclick="sendIntervention('skip')">이 단계 건너뛰기</button>
+          <button class="danger-btn" onclick="sendIntervention('abort')">프로젝트 중단</button>
+        </div>
       </div>
     </section>
 
-    <!-- 로그 -->
-    <section id="log-section" class="section hidden">
-      <h2>실시간 로그</h2>
-      <div class="log-container" id="log-container"></div>
+    <!-- 기획서/디자인 문서 -->
+    <section id="docs-section" class="section hidden">
+      <h2>문서</h2>
+      <div class="docs-tabs">
+        <button class="tab-btn active" onclick="showDocTab('spec')">기획서</button>
+        <button class="tab-btn" onclick="showDocTab('design')">디자인</button>
+      </div>
+      <div class="doc-content" id="spec-content">
+        <p class="placeholder">기획서가 여기에 표시됩니다...</p>
+      </div>
+      <div class="doc-content hidden" id="design-content">
+        <p class="placeholder">디자인 문서가 여기에 표시됩니다...</p>
+      </div>
     </section>
 
     <!-- 결과 -->
     <section id="result-section" class="section hidden">
-      <h2>완료</h2>
+      <h2>✅ 완료</h2>
       <div class="result-content" id="result-content"></div>
       <div class="files-list" id="files-list"></div>
-      <button id="summary-btn" class="secondary-btn">대화 기록 보기</button>
     </section>
-
-    <!-- 대화 기록 모달 -->
-    <div id="summary-modal" class="modal hidden">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>대화 기록 요약</h2>
-          <button class="modal-close" id="modal-close">&times;</button>
-        </div>
-        <div class="modal-body">
-          <div class="summary-stats" id="summary-stats"></div>
-          <div class="summary-timeline" id="summary-timeline"></div>
-          <p class="summary-file" id="summary-file"></p>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
