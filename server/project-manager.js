@@ -213,7 +213,8 @@ export class ProjectManager {
 
       this.log('system', `${fromTeam}팀 → ${prevRoleId}팀 롤백`);
 
-      await prevTeam.receiveFixRequest(fromTeam, reason);
+      const result = await prevTeam.receiveFixRequest(fromTeam, reason);
+      await this.handleTeamResult(result);
     }
   }
 
@@ -244,7 +245,8 @@ export class ProjectManager {
 
     this.log('system', `${fromTeam}팀 → 개발팀 수정 요청`);
 
-    await devTeam.receiveFixRequest(fromTeam, issue);
+    const result = await devTeam.receiveFixRequest(fromTeam, issue);
+    await this.handleTeamResult(result);
   }
 
   /**

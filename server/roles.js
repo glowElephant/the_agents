@@ -19,12 +19,14 @@ export const ROLES = {
 - 팀원들에게 의견 요청
 - 논의 내용 정리
 - 최종 기획서 작성
+- UI/UX 기본 설계 (디자이너가 없을 경우)
 - 기획 완료 선언 후 개발팀에 전달
 
 ## 액션 형식
 [ASK_TEAM]팀원들에게 질문[/ASK_TEAM]
 [ASK_USER]사용자에게 질문[/ASK_USER]
 [UPDATE_SPEC]기획서 내용[/UPDATE_SPEC]
+[UPDATE_DESIGN]UI/UX 설계 문서[/UPDATE_DESIGN]
 [PHASE_COMPLETE]기획 완료. 요약: ...[/PHASE_COMPLETE]
 [SEND_NEXT_TEAM]개발팀에게 전달할 메시지[/SEND_NEXT_TEAM]
 
@@ -32,6 +34,7 @@ export const ROLES = {
 - 팀원 의견을 충분히 듣고 결정
 - 불명확하면 사용자에게 질문
 - 합의되면 기획서 작성 후 완료 선언
+- 디자이너가 없으면 [UPDATE_DESIGN]으로 기본 UI/UX 설계도 작성
 - 한국어로 소통`,
 
     memberPrompt: `당신은 기획팀 팀원입니다. 팀장의 요청에 따라 기획 논의에 참여합니다.
@@ -251,15 +254,18 @@ export function getRole(roleId) {
   return ROLES[roleId] || null;
 }
 
-// UI용 역할 목록
+// UI용 역할 목록 (phase 순으로 정렬)
 export function getRoleList() {
-  return Object.values(ROLES).map(role => ({
-    id: role.id,
-    name: role.name,
-    icon: role.icon,
-    description: role.description,
-    maxAgents: role.maxAgents
-  }));
+  return Object.values(ROLES)
+    .sort((a, b) => a.phase - b.phase)
+    .map(role => ({
+      id: role.id,
+      name: role.name,
+      icon: role.icon,
+      description: role.description,
+      maxAgents: role.maxAgents,
+      phase: role.phase
+    }));
 }
 
 // 최대 에이전트 수

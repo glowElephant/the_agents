@@ -194,6 +194,10 @@ ${question}
           await this.updateSpec(action.content);
           break;
 
+        case 'UPDATE_DESIGN':
+          await this.updateDesign(action.content);
+          break;
+
         case 'SEND_TO_DEVELOPER':
           this.log('info', `개발 에이전트에게 전달: ${action.content}`);
           this.io.emit('planner_to_developer', {
@@ -227,6 +231,14 @@ ${question}
     await fs.writeFile(specPath, content, 'utf-8');
     this.log('info', '기획 문서(spec.md) 업데이트 완료');
     this.io.emit('spec_updated', { content });
+  }
+
+  // 디자인 문서 업데이트
+  async updateDesign(content) {
+    const designPath = path.join(this.workspacePath, 'spec', 'design.md');
+    await fs.writeFile(designPath, content, 'utf-8');
+    this.log('info', '디자인 문서(design.md) 업데이트 완료');
+    this.io.emit('design_updated', { content });
   }
 
   // 종료

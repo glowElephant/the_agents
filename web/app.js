@@ -241,6 +241,11 @@ socket.on('project_started', (data) => {
       return (roleA?.phase || 0) - (roleB?.phase || 0);
     });
 
+  // 디자이너가 선택되지 않았으면 안내 메시지 표시
+  if (!teamConfig.designer || teamConfig.designer === 0) {
+    designContent.innerHTML = '<p class="placeholder">🎨 디자이너가 선택되지 않았습니다. 기획서의 UI/UX 섹션을 참고하세요.</p>';
+  }
+
   addConversation('system', '시스템', `프로젝트 시작 - 경로: ${data.workspacePath}`);
 });
 

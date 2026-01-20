@@ -52,9 +52,33 @@ export class Team {
 
     for (const agent of this.agents) {
       await agent.start();
+
+      // 에이전트 CLI 출력을 클라이언트로 전달
+      this.setupAgentOutputForwarding(agent);
     }
 
     this.isActive = true;
+  }
+
+  /**
+   * 에이전트 출력 전달 설정
+   */
+  setupAgentOutputForwarding(agent) {
+    if (!agent.cli) return;
+
+    // 기존 핸들러 제거 후 새로 등록 (중복 방지)
+    agent.cli.removeAllListeners('output');
+
+    agent.cli.on('output', (data) => {
+      // 클라이언트로 실시간 출력 전송
+      this.io.emit('cli_output', {
+        agent: agent.id,
+        role: agent.roleId,
+        team: this.roleId,
+        teamName: `${this.role.icon} ${this.role.name}`,
+        data
+      });
+    });
   }
 
   /**
